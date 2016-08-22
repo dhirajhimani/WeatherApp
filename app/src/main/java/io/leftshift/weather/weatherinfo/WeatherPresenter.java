@@ -135,13 +135,13 @@ public class WeatherPresenter implements  WeatherContract.Presenter {
 				if (response.hasLocation()) {
 					openCityWeatherDetails(getLocation.getCityName());
 				} else {
-					getLocation.showSettingsAlert();
+					mWeatherView.currentLocationError();
 				}
 			}
 
 			@Override
 			public void onError() {
-
+				getLocation.showSettingsAlert();
 			}
 		});
 	}

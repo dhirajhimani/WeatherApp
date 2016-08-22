@@ -234,7 +234,12 @@ public class GetLocation  extends UseCase<GetLocation.RequestValues, GetLocation
 			public void run() {
 				getLocation();
 				if (getUseCaseCallback() != null) {
-					getUseCaseCallback().onSuccess(new ResponseValue(canGetLocation()));
+					if (!isGPSEnabled && !isNetworkEnabled) {
+						// no network provider is enabled
+						getUseCaseCallback().onError();
+					} else {
+						getUseCaseCallback().onSuccess(new ResponseValue(canGetLocation()));
+					}
 				}
 			}
 		});
