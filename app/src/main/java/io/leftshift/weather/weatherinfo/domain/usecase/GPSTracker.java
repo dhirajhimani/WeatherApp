@@ -11,7 +11,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.provider.Settings;
 import android.util.Log;
 
@@ -21,7 +20,7 @@ import java.util.List;
  * The type Gps tracker.
  */
 @SuppressWarnings({"MissingPermission"})
-public class GPSTracker extends Service implements LocationListener {
+public class GPSTracker implements LocationListener {
 
 	private static final String TAG = "GPSTracker";
 	private final Context mContext;
@@ -81,7 +80,7 @@ public class GPSTracker extends Service implements LocationListener {
 	public Location getLocation() {
 		try {
 			locationManager = (LocationManager) mContext
-					.getSystemService(LOCATION_SERVICE);
+					.getSystemService(Service.LOCATION_SERVICE);
 
 			// getting GPS status
 			isGPSEnabled = locationManager
@@ -110,6 +109,7 @@ public class GPSTracker extends Service implements LocationListener {
 							Geocoder geocoder = new Geocoder(mContext);
 							addresses = geocoder.getFromLocation(latitude, longitude, 1);
 							locationManager.removeUpdates(this);
+							return location;
 						}
 					}
 				}
@@ -231,11 +231,6 @@ public class GPSTracker extends Service implements LocationListener {
 
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
-	}
-
-	@Override
-	public IBinder onBind(Intent arg0) {
-		return null;
 	}
 
 }
