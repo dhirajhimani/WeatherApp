@@ -1,7 +1,5 @@
 package io.leftshift.weather.utils;
 
-import android.util.Log;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -20,8 +18,13 @@ public class WeatherUtils {
 
 	private static final String TAG = "WeatherUtils";
 
-	public static List<WeatherInfo> parseresponse(String response) {
-		Log.d(TAG, response);
+	/**
+	 * Parse response list.
+	 *
+	 * @param response the response
+	 * @return the list
+	 */
+	public static List<WeatherInfo> parseResponse(String response) {
 		List<WeatherInfo> weatherInfos = new ArrayList<>();
 		try {
 			JSONObject jsonObject = new JSONObject(response);
@@ -41,6 +44,12 @@ public class WeatherUtils {
 		return weatherInfos;
 	}
 
+	/**
+	 * Format date string.
+	 *
+	 * @param mTimestamp the m timestamp
+	 * @return the string
+	 */
 	public static String formatDate(long mTimestamp) {
 		String dateTime = new SimpleDateFormat("MMM d, yyyy").format(new Date(mTimestamp));
 		Calendar calendar = Calendar.getInstance();

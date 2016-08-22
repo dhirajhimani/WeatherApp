@@ -16,8 +16,14 @@
 
 package io.leftshift.weather;
 
+/**
+ * The interface Base presenter.
+ */
 public interface BasePresenter {
 
+    /**
+     * Start.
+     */
     void start();
 
 }

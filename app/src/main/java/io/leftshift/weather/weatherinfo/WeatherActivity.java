@@ -1,16 +1,11 @@
 package io.leftshift.weather.weatherinfo;
 
 import android.content.Intent;
-import android.location.Location;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationServices;
 
 import io.leftshift.weather.R;
 import io.leftshift.weather.UseCaseHandler;
@@ -19,10 +14,12 @@ import io.leftshift.weather.data.source.WeatherRemoteDataSource;
 import io.leftshift.weather.selectcity.SelectCity;
 import io.leftshift.weather.weatherinfo.domain.usecase.GetWeatherInfos;
 
-public class WeatherActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks{
+/**
+ * The type Weather activity.
+ */
+public class WeatherActivity extends AppCompatActivity implements  WeatherFragment.TitleUpdate {
 
-	private GoogleApiClient mGoogleApiClient;
-
+	private WeatherPresenter mWeatherPresenter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -42,28 +39,18 @@ public class WeatherActivity extends AppCompatActivity implements GoogleApiClien
 		fabShowCurrentLocationWeather.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				//get Current City
-				WeatherFragment weatherFragment = (WeatherFragment)
-						getSupportFragmentManager()
-								.findFragmentById(R.id.fragment);
-				weatherFragment.showCurrentLocationWeather();
+				mWeatherPresenter.getLocationByGpsOrNetwork();
 			}
 		});
 		WeatherFragment weatherFragment = (WeatherFragment)
 												getSupportFragmentManager()
 														.findFragmentById(R.id.fragment);
 		// Init Presenter
-		new WeatherPresenter(weatherFragment,
+		mWeatherPresenter = new WeatherPresenter(weatherFragment,
 							 UseCaseHandler.getInstance(),
 								new GetWeatherInfos(WeatherRepository.
 										getInstance(new WeatherRemoteDataSource())));
 
-		if (mGoogleApiClient == null) {
-			mGoogleApiClient = new GoogleApiClient.Builder(this)
-					.addConnectionCallbacks(this)
-					.addApi(LocationServices.API)
-					.build();
-		}
 	}
 
 	@Override
@@ -78,30 +65,9 @@ public class WeatherActivity extends AppCompatActivity implements GoogleApiClien
 		}
 	}
 
-	@Override
-	protected void onStart() {
-		mGoogleApiClient.connect();
-		super.onStart();
-	}
 
 	@Override
-	protected void onStop() {
-		mGoogleApiClient.disconnect();
-		super.onStop();
-	}
-
-	@Override
-	@SuppressWarnings({"MissingPermission"})
-	public void onConnected(@Nullable Bundle bundle) {
-		Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-				mGoogleApiClient);
-		if (mLastLocation != null) {
-
-		}
-	}
-
-	@Override
-	public void onConnectionSuspended(int i) {
-
+	public void updateTitle(String title) {
+		getSupportActionBar().setTitle(title);
 	}
 }

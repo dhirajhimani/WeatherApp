@@ -26,6 +26,13 @@ public class WeatherPresenter implements  WeatherContract.Presenter {
 
 	private final GetWeatherInfos mGetWeatherInfos;
 
+	/**
+	 * Instantiates a new Weather presenter.
+	 *
+	 * @param weatherView     the weather view
+	 * @param useCaseHandler  the use case handler
+	 * @param getWeatherInfos the get weather infos
+	 */
 	WeatherPresenter( WeatherContract.View weatherView , UseCaseHandler useCaseHandler
 														, GetWeatherInfos getWeatherInfos) {
 		mWeatherView = weatherView;
@@ -45,16 +52,6 @@ public class WeatherPresenter implements  WeatherContract.Presenter {
 	}
 
 	@Override
-	public void loadWeatherInfo(boolean forceUpdate) {
-
-	}
-
-	@Override
-	public void selectCity() {
-
-	}
-
-	@Override
 	public void openCityWeatherDetails(@NonNull String cityName) {
 
 
@@ -66,6 +63,7 @@ public class WeatherPresenter implements  WeatherContract.Presenter {
 			mWeatherView.currentLocationError();
 		} else {
 			mWeatherView.setLoadingIndicator(true);
+			mWeatherView.showWeatherCityName(cityName);
 			// show weather by city
 			String url = String.format(GetWeatherInfos.URL, cityName);
 			GetWeatherInfos.RequestValues requestValues = new GetWeatherInfos.RequestValues(url, cityName);
@@ -92,17 +90,22 @@ public class WeatherPresenter implements  WeatherContract.Presenter {
 		}
 	}
 
-	private void processInfo(List<WeatherInfo> infos) {
-		if (infos.isEmpty()) {
+	private void processInfo(List<WeatherInfo> weatherInfos) {
+		if (weatherInfos.isEmpty()) {
 			mWeatherView.showError();
 		}else {
-			mWeatherView.showWeathers(infos);
+			mWeatherView.showWeathers(weatherInfos);
 		}
 	}
 
 	@Override
 	public void start() {
 		// Get current Location and show weather
-		openCityWeatherDetails(null);
+		mWeatherView.showCurrentLocationWeather();
 	}
+
+	public void getLocationByGpsOrNetwork(){
+		mWeatherView.showCurrentLocationWeather();
+	}
+
 }

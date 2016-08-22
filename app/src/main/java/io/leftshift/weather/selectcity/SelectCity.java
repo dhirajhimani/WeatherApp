@@ -16,7 +16,13 @@ import io.leftshift.weather.R;
  */
 public class SelectCity extends AppCompatActivity {
 
+	/**
+	 * The constant CITY_SELECTED.
+	 */
 	public static String CITY_SELECTED = "CITY_SELECTED";
+	/**
+	 * The constant REQUEST_CITY.
+	 */
 	public static final int REQUEST_CITY = 101;
 	private String TAG = "SelectCity";
 

@@ -19,6 +19,11 @@ public class WeatherRemoteDataSource implements WeatherDatasource {
 
 	private OkHttpClient client;
 
+	/**
+	 * Gets instance.
+	 *
+	 * @return the instance
+	 */
 	public static WeatherRemoteDataSource getInstance() {
 		if (INSTANCE == null) {
 			INSTANCE = new WeatherRemoteDataSource();
@@ -26,7 +31,10 @@ public class WeatherRemoteDataSource implements WeatherDatasource {
 		return INSTANCE;
 	}
 
-	// Prevent direct instantiation.
+	/**
+	 * Instantiates a new Weather remote data source.
+	 */
+// Prevent direct instantiation.
 	public WeatherRemoteDataSource() {
 		client = new OkHttpClient();
 	}
@@ -43,7 +51,7 @@ public class WeatherRemoteDataSource implements WeatherDatasource {
 			Response response = client.newCall(request).execute();
 		if (response.isSuccessful()) {
 			// convert Data
-			callback.onTasksLoaded(WeatherUtils.parseresponse(response.body().string()));
+			callback.onTasksLoaded(WeatherUtils.parseResponse(response.body().string()));
 		} else {
 			callback.onDataNotAvailable();
 		}

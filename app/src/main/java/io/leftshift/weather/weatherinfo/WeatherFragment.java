@@ -11,12 +11,14 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import io.leftshift.weather.R;
 import io.leftshift.weather.weatherinfo.domain.model.WeatherInfo;
+import io.leftshift.weather.weatherinfo.domain.usecase.GPSTracker;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -35,13 +37,34 @@ public class WeatherFragment extends Fragment implements WeatherContract.View {
 
 	private ProgressBar mProgressBar;
 
+	private GPSTracker gpsTracker;
+
+	private TitleUpdate titleUpdate;
+
+	/**
+	 * Instantiates a new Weather fragment.
+	 */
 	public WeatherFragment() {
+	}
+
+	/**
+	 * The interface Title update.
+	 */
+	interface TitleUpdate {
+		/**
+		 * Udpate title.
+		 *
+		 * @param title the title
+		 */
+		void updateTitle(String title);
 	}
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		mWeatherInfoAdapter = new WeatherInfoAdapter(new ArrayList<WeatherInfo>(0));
+		gpsTracker = new GPSTracker(getContext());
+		titleUpdate = (TitleUpdate)getActivity();
 	}
 
 	@Override
@@ -68,19 +91,20 @@ public class WeatherFragment extends Fragment implements WeatherContract.View {
 	}
 
 	@Override
-	public void onResume() {
-		super.onResume();
-		mPresenter.start();
-	}
-
 	public void showCurrentLocationWeather() {
-		mPresenter.start();
+		if (gpsTracker.canGetLocation()){
+			mPresenter.openCityWeatherDetails(gpsTracker.getCityName());
+		} else {
+			gpsTracker.showSettingsAlert();
+		}
 	}
 
 	public void currentLocationError(){
 		mEmptyView.setVisibility(View.VISIBLE);
 		mWeatherList.setVisibility(View.GONE);
-		mEmptyView.setText(getResources().getString(R.string.location_error));
+		String errorMsg = getResources().getString(R.string.location_error);
+		mEmptyView.setText(errorMsg);
+		Toast.makeText(getContext(), errorMsg, Toast.LENGTH_SHORT).show();
 	}
 
 
@@ -96,16 +120,15 @@ public class WeatherFragment extends Fragment implements WeatherContract.View {
 
 	@Override
 	public void showWeathers(List<WeatherInfo> weatherInfo) {
-		mWeatherInfoAdapter.setList(weatherInfo);
-		mWeatherInfoAdapter.notifyDataSetChanged();
+		mWeatherInfoAdapter.replaceData(weatherInfo);
 
 		mEmptyView.setVisibility(View.GONE);
 		mWeatherList.setVisibility(View.VISIBLE);
 	}
 
 	@Override
-	public void showWeather(String cityName) {
-
+	public void showWeatherCityName(String cityName) {
+		titleUpdate.updateTitle(cityName + "'s " + "Weather");
 	}
 
 	@Override
@@ -125,10 +148,20 @@ public class WeatherFragment extends Fragment implements WeatherContract.View {
 
 		private List<WeatherInfo> mWeatherInfos;
 
+		/**
+		 * Instantiates a new Weather info adapter.
+		 *
+		 * @param weatherInfos the weather infos
+		 */
 		public WeatherInfoAdapter(List<WeatherInfo> weatherInfos) {
 			setList(weatherInfos);
 		}
 
+		/**
+		 * Replace data.
+		 *
+		 * @param weatherInfos the weather infos
+		 */
 		public void replaceData(List<WeatherInfo> weatherInfos) {
 			setList(weatherInfos);
 			notifyDataSetChanged();

@@ -19,6 +19,13 @@ public class SelectCityAdapter extends RecyclerView.Adapter<SelectCityAdapter.Se
 
 	private AdapterView.OnItemClickListener mItemClickListener;
 
+	/**
+	 * Instantiates a new Select city adapter.
+	 *
+	 * @param cityList          the city list
+	 * @param context           the context
+	 * @param itemClickListener the item click listener
+	 */
 	public SelectCityAdapter(String[] cityList, Context context, AdapterView.OnItemClickListener itemClickListener) {
 		this.mCityList = cityList;
 		this.mItemClickListener = itemClickListener;
@@ -47,10 +54,21 @@ public class SelectCityAdapter extends RecyclerView.Adapter<SelectCityAdapter.Se
 		return mCityList.length;
 	}
 
+	/**
+	 * The type Select city view holder.
+	 */
 	public static class SelectCityViewHolder extends RecyclerView.ViewHolder{
 
+		/**
+		 * The M city name.
+		 */
 		protected TextView mCityName;
 
+		/**
+		 * Instantiates a new Select city view holder.
+		 *
+		 * @param itemView the item view
+		 */
 		public SelectCityViewHolder(View itemView) {
 			super(itemView);
 			mCityName= (TextView) itemView.findViewById(R.id.city_name);

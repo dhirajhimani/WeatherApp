@@ -38,6 +38,8 @@ public class WeatherRepository implements WeatherDatasource {
 	/**
 	 * Returns the single instance of this class, creating it if necessary.
 	 *
+	 * @param weatherRemoteDataSource the weather remote data source
+	 * @return the instance
 	 */
 	public static WeatherRepository getInstance(WeatherDatasource weatherRemoteDataSource) {
 		if (INSTANCE == null) {
@@ -46,6 +48,9 @@ public class WeatherRepository implements WeatherDatasource {
 		return INSTANCE;
 	}
 
+	/**
+	 * Destroy instance.
+	 */
 	public static void destroyInstance() {
 		INSTANCE = null;
 	}
