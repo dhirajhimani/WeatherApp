@@ -18,7 +18,6 @@ import java.util.List;
 
 import io.leftshift.weather.R;
 import io.leftshift.weather.weatherinfo.domain.model.WeatherInfo;
-import io.leftshift.weather.weatherinfo.domain.usecase.GPSTracker;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -36,8 +35,6 @@ public class WeatherFragment extends Fragment implements WeatherContract.View {
 	private WeatherInfoAdapter mWeatherInfoAdapter;
 
 	private ProgressBar mProgressBar;
-
-	private GPSTracker gpsTracker;
 
 	private TitleUpdate titleUpdate;
 
@@ -69,7 +66,6 @@ public class WeatherFragment extends Fragment implements WeatherContract.View {
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		mWeatherInfoAdapter = new WeatherInfoAdapter(new ArrayList<WeatherInfo>(0));
-		gpsTracker = new GPSTracker(getContext());
 		titleUpdate = (TitleUpdate)getActivity();
 	}
 
@@ -94,15 +90,6 @@ public class WeatherFragment extends Fragment implements WeatherContract.View {
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		mPresenter.result(requestCode, resultCode, data);
-	}
-
-	@Override
-	public void showCurrentLocationWeather() {
-		if (gpsTracker.canGetLocation()){
-			mPresenter.openCityWeatherDetails(gpsTracker.getCityName());
-		} else {
-			gpsTracker.showSettingsAlert();
-		}
 	}
 
 	public void currentLocationError(){

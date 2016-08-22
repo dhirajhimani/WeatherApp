@@ -52,8 +52,9 @@ public class WeatherActivity extends AppCompatActivity implements  WeatherFragme
 		// Init Presenter
 		mWeatherPresenter = new WeatherPresenter(weatherFragment,
 							 UseCaseHandler.getInstance(),
-								new GetWeatherInfos(WeatherRepository.
-										getInstance(new WeatherRemoteDataSource())));
+							 new GetWeatherInfos(WeatherRepository.
+										getInstance(new WeatherRemoteDataSource())),
+							 this);
 
 		WeatherViewModel weatherViewModel =
 				new WeatherViewModel(getApplicationContext(), mWeatherPresenter);

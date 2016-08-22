@@ -55,11 +55,7 @@ public class WeatherContract {
 		 * Current location error.
 		 */
 		void currentLocationError();
-
-		/**
-		 * Show current location weather.
-		 */
-		void showCurrentLocationWeather(); }
+	}
 
 	/**
 	 * The interface Presenter.

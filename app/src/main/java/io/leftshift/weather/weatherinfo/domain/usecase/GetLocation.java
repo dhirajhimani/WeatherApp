@@ -1,8 +1,8 @@
 package io.leftshift.weather.weatherinfo.domain.usecase;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Service;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Address;
@@ -16,14 +16,16 @@ import android.util.Log;
 
 import java.util.List;
 
+import io.leftshift.weather.UseCase;
+
 /**
  * The type Gps tracker.
  */
 @SuppressWarnings({"MissingPermission"})
-public class GPSTracker implements LocationListener {
+public class GetLocation  extends UseCase<GetLocation.RequestValues, GetLocation.ResponseValue>  implements LocationListener {
 
-	private static final String TAG = "GPSTracker";
-	private final Context mContext;
+	private static final String TAG = "GetLocation";
+	private final Activity mActivity;
 
 	/**
 	 * The Is gps enabled.
@@ -65,11 +67,10 @@ public class GPSTracker implements LocationListener {
 	/**
 	 * Instantiates a new Gps tracker.
 	 *
-	 * @param context the context
+	 * @param activity the activity
 	 */
-	public GPSTracker(Context context) {
-		this.mContext = context;
-		getLocation();
+	public GetLocation(Activity activity) {
+		this.mActivity = activity;
 	}
 
 	/**
@@ -79,7 +80,7 @@ public class GPSTracker implements LocationListener {
 	 */
 	public Location getLocation() {
 		try {
-			locationManager = (LocationManager) mContext
+			locationManager = (LocationManager) mActivity
 					.getSystemService(Service.LOCATION_SERVICE);
 
 			// getting GPS status
@@ -106,7 +107,7 @@ public class GPSTracker implements LocationListener {
 						if (location != null) {
 							double latitude = location.getLatitude();
 							double longitude = location.getLongitude();
-							Geocoder geocoder = new Geocoder(mContext);
+							Geocoder geocoder = new Geocoder(mActivity);
 							addresses = geocoder.getFromLocation(latitude, longitude, 1);
 							locationManager.removeUpdates(this);
 							return location;
@@ -127,7 +128,7 @@ public class GPSTracker implements LocationListener {
 							if (location != null) {
 								double latitude = location.getLatitude();
 								double longitude = location.getLongitude();
-								Geocoder geocoder = new Geocoder(mContext);
+								Geocoder geocoder = new Geocoder(mActivity);
 								addresses = geocoder.getFromLocation(latitude, longitude, 1);
 								locationManager.removeUpdates(this);
 							}
@@ -149,7 +150,7 @@ public class GPSTracker implements LocationListener {
 	 */
 	public void stopUsingGPS(){
 		if(locationManager != null){
-			locationManager.removeUpdates(GPSTracker.this);
+			locationManager.removeUpdates(GetLocation.this);
 		}		
 	}
 
@@ -160,7 +161,6 @@ public class GPSTracker implements LocationListener {
 	 * @return the city name
 	 */
 	public String getCityName() {
-		getLocation();
 		if (addresses != null && addresses.size() > 0) {
 			return addresses.get(0).getLocality();
 		} else {
@@ -182,7 +182,7 @@ public class GPSTracker implements LocationListener {
 	 * On pressing Settings button will lauch Settings Options
 	 */
 	public void showSettingsAlert(){
-		AlertDialog.Builder alertDialog = new AlertDialog.Builder(mContext);
+		AlertDialog.Builder alertDialog = new AlertDialog.Builder(mActivity);
    	 
         // Setting Dialog Title
         alertDialog.setTitle("Is GPS Enabled ?");
@@ -194,7 +194,7 @@ public class GPSTracker implements LocationListener {
         alertDialog.setPositiveButton("Settings", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog,int which) {
             	Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-            	mContext.startActivity(intent);
+            	mActivity.startActivity(intent);
             }
         });
  
@@ -209,12 +209,6 @@ public class GPSTracker implements LocationListener {
         alertDialog.show();
 	}
 
-	/**
-	 * Update current location.
-	 */
-	public void updateCurrentLocation(){
-		getLocation();
-	}
 
 	@Override
 	public void onLocationChanged(Location location) {
@@ -231,6 +225,59 @@ public class GPSTracker implements LocationListener {
 
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
+	}
+
+	@Override
+	protected void executeUseCase(RequestValues requestValues) {
+		mActivity.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				getLocation();
+				if (getUseCaseCallback() != null) {
+					getUseCaseCallback().onSuccess(new ResponseValue(canGetLocation()));
+				}
+			}
+		});
+
+
+	}
+
+	/**
+	 * The type Request values.
+	 */
+	public static final class RequestValues implements UseCase.RequestValues {
+
+		/**
+		 * Instantiates a new Request values.
+		 */
+		public RequestValues() {
+		}
+	}
+
+	/**
+	 * The type Response value.
+	 */
+	public static final class ResponseValue implements UseCase.ResponseValue {
+
+		private final boolean mGotLocation;
+
+		/**
+		 * Instantiates a new Response value.
+		 *
+		 * @param gotLocation the got location
+		 */
+		public ResponseValue(boolean gotLocation) {
+			this.mGotLocation = gotLocation;
+		}
+
+		/**
+		 * Has location boolean.
+		 *
+		 * @return the boolean
+		 */
+		public boolean hasLocation() {
+			return mGotLocation;
+		}
 	}
 
 }

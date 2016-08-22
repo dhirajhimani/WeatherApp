@@ -10,7 +10,9 @@ import java.util.List;
 import io.leftshift.weather.UseCase;
 import io.leftshift.weather.UseCaseHandler;
 import io.leftshift.weather.selectcity.SelectCity;
+import io.leftshift.weather.utils.WeatherUtils;
 import io.leftshift.weather.weatherinfo.domain.model.WeatherInfo;
+import io.leftshift.weather.weatherinfo.domain.usecase.GetLocation;
 import io.leftshift.weather.weatherinfo.domain.usecase.GetWeatherInfos;
 
 /**
@@ -26,7 +28,11 @@ public class WeatherPresenter implements  WeatherContract.Presenter {
 
 	private final GetWeatherInfos mGetWeatherInfos;
 
+	private final GetLocation getLocation;
+
 	private String mCity;
+
+	private Activity mActivity;
 
 	/**
 	 * Instantiates a new Weather presenter.
@@ -36,11 +42,14 @@ public class WeatherPresenter implements  WeatherContract.Presenter {
 	 * @param getWeatherInfos the get weather infos
 	 */
 	WeatherPresenter( WeatherContract.View weatherView , UseCaseHandler useCaseHandler
-														, GetWeatherInfos getWeatherInfos) {
+														, GetWeatherInfos getWeatherInfos
+														, Activity activity) {
+		mActivity = activity;
 		mWeatherView = weatherView;
 		mWeatherView.setPresenter(this);
 		mUseCaseHandler = useCaseHandler;
 		mGetWeatherInfos = getWeatherInfos;
+		getLocation = new GetLocation(mActivity);
 	}
 
 	@Override
@@ -56,6 +65,11 @@ public class WeatherPresenter implements  WeatherContract.Presenter {
 	@Override
 	public void openCityWeatherDetails(@NonNull String cityName) {
 
+		// In case of no internet
+		if (!WeatherUtils.isNetworkAvailable(mActivity)) {
+			WeatherUtils.showInternetSettingsAlert(mActivity);
+			return;
+		}
 
 		if (cityName == null || cityName.isEmpty()) {
 			//show current Location
@@ -103,12 +117,33 @@ public class WeatherPresenter implements  WeatherContract.Presenter {
 
 	@Override
 	public void start() {
-		// Get current Location and show weather
-		mWeatherView.showCurrentLocationWeather();
+		getLocationByGpsOrNetwork();
 	}
 
 	public void getLocationByGpsOrNetwork(){
-		mWeatherView.showCurrentLocationWeather();
+		// In case of no internet
+		if (!WeatherUtils.isNetworkAvailable(mActivity)) {
+			WeatherUtils.showInternetSettingsAlert(mActivity);
+			return;
+		}
+		mWeatherView.setLoadingIndicator(true);
+		// In normal scenario this won't be needed, Since we would be having location initially
+		// but since for testing we can change the location and test it.
+		mUseCaseHandler.execute(getLocation, null, new UseCase.UseCaseCallback<GetLocation.ResponseValue>() {
+			@Override
+			public void onSuccess(GetLocation.ResponseValue response) {
+				if (response.hasLocation()) {
+					openCityWeatherDetails(getLocation.getCityName());
+				} else {
+					getLocation.showSettingsAlert();
+				}
+			}
+
+			@Override
+			public void onError() {
+
+			}
+		});
 	}
 
 	public String getCurrentSelectedCity() {
