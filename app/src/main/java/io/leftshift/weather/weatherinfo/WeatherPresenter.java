@@ -26,6 +26,8 @@ public class WeatherPresenter implements  WeatherContract.Presenter {
 
 	private final GetWeatherInfos mGetWeatherInfos;
 
+	private String mCity;
+
 	/**
 	 * Instantiates a new Weather presenter.
 	 *
@@ -64,6 +66,7 @@ public class WeatherPresenter implements  WeatherContract.Presenter {
 		} else {
 			mWeatherView.setLoadingIndicator(true);
 			mWeatherView.showWeatherCityName(cityName);
+			mCity = cityName;
 			// show weather by city
 			String url = String.format(GetWeatherInfos.URL, cityName);
 			GetWeatherInfos.RequestValues requestValues = new GetWeatherInfos.RequestValues(url, cityName);
@@ -108,4 +111,7 @@ public class WeatherPresenter implements  WeatherContract.Presenter {
 		mWeatherView.showCurrentLocationWeather();
 	}
 
+	public String getCurrentSelectedCity() {
+		return mCity;
+	}
 }

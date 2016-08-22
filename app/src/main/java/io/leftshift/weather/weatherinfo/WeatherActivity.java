@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.View;
 
 import io.leftshift.weather.R;
@@ -19,6 +20,7 @@ import io.leftshift.weather.weatherinfo.domain.usecase.GetWeatherInfos;
  */
 public class WeatherActivity extends AppCompatActivity implements  WeatherFragment.TitleUpdate {
 
+	private static final String CURRENT_CITY_KEY = "current_city";
 	private WeatherPresenter mWeatherPresenter;
 
 	@Override
@@ -45,13 +47,37 @@ public class WeatherActivity extends AppCompatActivity implements  WeatherFragme
 		WeatherFragment weatherFragment = (WeatherFragment)
 												getSupportFragmentManager()
 														.findFragmentById(R.id.fragment);
+
+
 		// Init Presenter
 		mWeatherPresenter = new WeatherPresenter(weatherFragment,
 							 UseCaseHandler.getInstance(),
 								new GetWeatherInfos(WeatherRepository.
 										getInstance(new WeatherRemoteDataSource())));
 
+		WeatherViewModel weatherViewModel =
+				new WeatherViewModel(getApplicationContext(), mWeatherPresenter);
+
+		weatherFragment.setWeatherViewModel(weatherViewModel);
+
+		// Load previously saved state, if available.
+		if (savedInstanceState != null) {
+			String selectedCity =
+					(String) savedInstanceState.getSerializable(CURRENT_CITY_KEY);
+			if (!TextUtils.isEmpty(selectedCity)) {
+				mWeatherPresenter.openCityWeatherDetails(selectedCity);
+			}
+		}
+
 	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		outState.putSerializable(CURRENT_CITY_KEY, mWeatherPresenter.getCurrentSelectedCity());
+
+		super.onSaveInstanceState(outState);
+	}
+
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {

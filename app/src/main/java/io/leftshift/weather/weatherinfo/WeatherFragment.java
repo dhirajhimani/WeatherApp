@@ -41,10 +41,16 @@ public class WeatherFragment extends Fragment implements WeatherContract.View {
 
 	private TitleUpdate titleUpdate;
 
+	private WeatherViewModel mWeatherViewModel;
+
 	/**
 	 * Instantiates a new Weather fragment.
 	 */
 	public WeatherFragment() {
+	}
+
+	public void setWeatherViewModel(WeatherViewModel weatherViewModel) {
+		mWeatherViewModel = weatherViewModel;
 	}
 
 	/**
@@ -120,6 +126,7 @@ public class WeatherFragment extends Fragment implements WeatherContract.View {
 
 	@Override
 	public void showWeathers(List<WeatherInfo> weatherInfo) {
+		mWeatherViewModel.setTaskListSize(weatherInfo.size());
 		mWeatherInfoAdapter.replaceData(weatherInfo);
 
 		mEmptyView.setVisibility(View.GONE);
