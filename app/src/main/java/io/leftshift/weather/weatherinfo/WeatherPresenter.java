@@ -132,15 +132,18 @@ public class WeatherPresenter implements  WeatherContract.Presenter {
 		mUseCaseHandler.execute(getLocation, null, new UseCase.UseCaseCallback<GetLocation.ResponseValue>() {
 			@Override
 			public void onSuccess(GetLocation.ResponseValue response) {
-				if (response.hasLocation()) {
+
+				if (response.hasLocation() && getLocation.getCityName() != null) {
 					openCityWeatherDetails(getLocation.getCityName());
 				} else {
+					mWeatherView.setLoadingIndicator(false);
 					mWeatherView.currentLocationError();
 				}
 			}
 
 			@Override
 			public void onError() {
+				mWeatherView.setLoadingIndicator(false);
 				getLocation.showSettingsAlert();
 			}
 		});
